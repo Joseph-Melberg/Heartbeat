@@ -11,8 +11,10 @@ def system_call(command):
 credentials = pika.PlainCredentials('life','conway')
 connection = pika.BlockingConnection(pika.ConnectionParameters('centurionx.net',5672,'/',credentials))
 channel = connection.channel()
+channel.exchange_declare(exchange='Inter',exchange_type='direct',durable=True)
+channel.queue_declare(queue='Reader')
 messa = {}
-messa["Name"] = "skywatcher"
+messa["Name"] = "homebase"
 def getMAC(interface='eth0'):
   # Return the MAC address of the specified interface
   try:
@@ -22,7 +24,7 @@ def getMAC(interface='eth0'):
   return str[0:17]
 
 messa["Mac"] = getMAC()
-
+channel.queue_bind(exchange='Inter',queue='Reader',routing_key='/life')
 channel.basic_publish(exchange='Inter',
                       routing_key='/life',
                       body=str(messa))
